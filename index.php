@@ -7,12 +7,9 @@ $interval = '10';
 // The path is relative to the directory containing this php file
 $photodir = '../photos';
 
-// Photoext is the file extension of the photos. Do not include '.', not case-sensitive.
+// Photoext is the file extension of the photos.
+// Do not include '.', not case-sensitive.
 $photoext = 'jpg';
-
-// Optional text to remove from the path or filename of the photo.
-$findtext = '/config/www';
-$replacetext = '..';
 
 // Background and text colors
 $backgroundcolor = 'black';
@@ -39,9 +36,7 @@ $textcolor = 'cyan';
  }
  </style>
 </head>
-
 <body>
-
 <?php
 
 // Uncomment for debugging
@@ -71,23 +66,33 @@ function getDirContents($dir, $filter = '', &$results = array()) {
 // If the list of photos is empty get a list of photos
 if(empty($_SESSION['photos'])) {
  echo("<pre>Session variable photos is empty, getting file list.</pre>");
- // $_SESSION['photos'] = getDirContents('../photos', '/\.' . $photoext . '$/i');
  $_SESSION['photos'] = getDirContents($photodir, '/\.' . $photoext . '$/i');
- //$photos = getDirContents('../photos/');
 }
 //else {
 // echo("<pre>Session variable photos not empty, not searching for files.</pre>");
 //}
 
-// Select a random array entry
+// Get a random array index
 $random = array_rand($_SESSION['photos'],1);
 
-// Get the full path and filename of the random photo and strip text from the path and filename
-//$photo = str_replace("/config/www","..",$_SESSION['photos'][$random]);
-$photo = str_replace("$findtext","$replacetext",$_SESSION['photos'][$random]);
+// Get the full path and filename of a random photo and strip text from the path and filename
+//$photo = str_replace($_SERVER['DOCUMENT_ROOT'],"..",$_SESSION['photos'][$random]);
+
+// Get the path and filename of the random photo
+// Remove the filesystem directory name from scandir() results
+$photo = str_replace($_SERVER['DOCUMENT_ROOT'],"",$_SESSION['photos'][$random]);
+
+$photoexif = exif_read_data($_SESSION['photos'][$random],'IFD0');
+$photoDateTimeOriginal = $photoexif['DateTimeOriginal'];
+
+// Display the path and filename of the photo
+//echo("<pre>" . $photo . "</pre>");
 
 // Display the filename of the photo
-echo("<pre>" . basename($photo) . "</pre>");
+echo("<pre>" . basename($photo) . " (Original Date $photoDateTimeOriginal)" . "</pre>");
+
+// Display the filename of the photo without file extension
+//echo("<pre>" . str_ireplace(".$photoext","",basename($photo)) . "</pre>");
 
 ?>
 
