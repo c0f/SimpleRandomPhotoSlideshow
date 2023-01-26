@@ -3,17 +3,23 @@
 // Interval is the number of seconds between each photo
 $interval = '10';
 
-// Photodir is the directory containing photos and/or subdirectories of photos
+// photoDir is the directory containing photos and/or subdirectories of photos
 // The path is relative to the directory containing this php file
-$photodir = '../photos';
+$photoDir = '../photos';
+//$photoDir = './photos';
 
-// Photoext is the file extension of the photos.
-// Do not include '.', not case-sensitive.
-$photoext = 'jpg';
+// photoExt is the file extension of the photos.
+// Do not include '.'.
+// Not case-sensitive.
+$photoExt = 'jpg';
 
 // Background and text colors
-$backgroundcolor = 'black';
-$textcolor = 'cyan';
+$backgroundColor = 'black';
+$textColor = 'cyan';
+
+// Number of minutes after which the photo directory will be rescanned
+// The rescan is triggered by recreating the session to force a file rescan
+$recanAfter = 720;
 
 ?>
 
@@ -30,8 +36,8 @@ $textcolor = 'cyan';
    height: 100vh;
  }
  * {
-  background-color: <?=$backgroundcolor?>;
-  color: <?=$textcolor?>;
+  background-color: <?=$backgroundColor?>;
+  color: <?=$textColor?>;
   text-align: center;
  }
  </style>
@@ -39,14 +45,9 @@ $textcolor = 'cyan';
 <body>
 <?php
 
-// Uncomment for debugging
-//ini_set('display_startup_errors',1);
-//ini_set('display_errors',1);
-//error_reporting(-1);
-//echo date("h:i:sa");
-
 // Session variables are used to prevent rescaning photo folders every time the page is refreshed.
 session_start();
+
 
 // Function getDirContents was written by stackoverflow user user2226755
 // URL: https://stackoverflow.com/questions/24783862/list-all-the-files-and-folders-in-a-directory-with-php-recursive-function
@@ -60,17 +61,24 @@ function getDirContents($dir, $filter = '', &$results = array()) {
             getDirContents($path, $filter, $results);
         }
     }
+    // Store the current date and time in the session cookie
+    $_SESSION['LastFileScan'] = time();
+    //$_SESSION['LastFileScan'] = date('Y-m-d H:i:s');
     return $results;
 }
 
 // If the list of photos is empty get a list of photos
 if(empty($_SESSION['photos'])) {
- echo("<pre>Session variable photos is empty, getting file list.</pre>");
- $_SESSION['photos'] = getDirContents($photodir, '/\.' . $photoext . '$/i');
+ echo("<pre>Getting list of photos.</pre>");
+ $_SESSION['photos'] = getDirContents($photoDir, '/\.' . $photoExt . '$/i');
 }
-//else {
-// echo("<pre>Session variable photos not empty, not searching for files.</pre>");
-//}
+
+// Check the age of the array containing file names and destroy the session if the age exceeds $rescanAfter
+// This forces a rescan of $photoDir on the next page refresh
+$arrayAge = time() - $_SESSION['LastFileScan'];
+if($arrayAge > ($recanAfter * 60)){
+ session_destroy();
+}
 
 // Get a random array index
 $random = array_rand($_SESSION['photos'],1);
@@ -82,17 +90,12 @@ $random = array_rand($_SESSION['photos'],1);
 // Remove the filesystem directory name from scandir() results
 $photo = str_replace($_SERVER['DOCUMENT_ROOT'],"",$_SESSION['photos'][$random]);
 
+// Get the DateTimeOriginal field from the photo EXIF data
 $photoexif = exif_read_data($_SESSION['photos'][$random],'IFD0');
 $photoDateTimeOriginal = $photoexif['DateTimeOriginal'];
 
-// Display the path and filename of the photo
-//echo("<pre>" . $photo . "</pre>");
-
-// Display the filename of the photo
+// Display the filename of the photo and DateTimeOriginal
 echo("<pre>" . basename($photo) . " (Original Date $photoDateTimeOriginal)" . "</pre>");
-
-// Display the filename of the photo without file extension
-//echo("<pre>" . str_ireplace(".$photoext","",basename($photo)) . "</pre>");
 
 ?>
 
