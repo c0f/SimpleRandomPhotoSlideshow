@@ -6,11 +6,11 @@ The scanned directory can contain images or subdirectories containing images.
 
 The slideshow is configured using variables at the top of the slideshow.php file:
 
-* $interval - this sets the number of seconds a photo is displayed before the next photo is displayed.
-* $photoDir - this is the path where photos or directories of photos are stored. This must be relative to the slideshow.php file.
-* $photoExt - the file extension that will be search for. Only one extension is supported but it is not case sensitive.
-* $rescanAfter - this is the number of minutes after which $photoDir will be rescanned.
-* $backgroundColor & $textColor - the background and text colors.
+* ``$interval`` - this sets the number of seconds a photo is displayed before the next photo is displayed.
+* ``$photoDir`` - this is the path where photos or directories of photos are stored. This must be relative to the slideshow.php file.
+* ``$photoExt`` - the file extension that will be search for. Only one extension is supported but it is not case sensitive.
+* ``$rescanAfter`` - this is the number of minutes after which $photoDir will be rescanned.
+* ``$backgroundColor`` & ``$textColor`` - the background and text colors.
 
 
 ### Acknowledgements
