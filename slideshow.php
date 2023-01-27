@@ -11,10 +11,10 @@ $photoExt = 'jpg';
 
 // Background and text colors
 $backgroundColor = 'black';
-$textColor = 'cyan';
+$textColor = 'white';
 
 // Number of minutes after which the photo directory will be rescanned. The rescan is triggered by recreating the session to force a file rescan
-$recanAfter = 720;
+$recanAfter = 23;
 
 ?>
 <!DOCTYPE html>
@@ -25,15 +25,29 @@ $recanAfter = 720;
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
  <meta name="apple-mobile-web-app-capable" content="yes">
  <style>
- img {
-   object-fit: contain;
-   width: 100vw;
-   height: 100vh;
- }
  * {
   background-color: <?=$backgroundColor?>;
+ }
+ img {
+  object-fit: contain;
+  width: 95vw;
+  height: 95vh;
+  margin: auto;
+  display: block;
+ }
+ pre {
   color: <?=$textColor?>;
   text-align: center;
+ }
+ h2 {
+  color: <?=$textColor?>;
+  background: <?=$backgroundColor?>;
+  /* font: bold 16px/16px Helvetica, Sans-Serif; */
+  font: bold 1em Helvetica, Sans-Serif;
+  position: absolute;
+  bottom: 0px;
+  text-align: center;
+  width: 100%;
  }
  </style>
 </head>
@@ -62,7 +76,6 @@ function getDirContents($dir, $filter = '', &$results = array()) {
 
 // If the list of photos is empty get a list of photos
 if(empty($_SESSION['photos'])) {
- echo("<pre>Getting list of photos.</pre>");
  $_SESSION['photos'] = getDirContents($photoDir, '/\.' . $photoExt . '$/i');
 }
 
@@ -81,11 +94,11 @@ $random = array_rand($_SESSION['photos'],1);
 $photo = str_replace($_SERVER['DOCUMENT_ROOT'],"",$_SESSION['photos'][$random]);
 
 // Get the DateTimeOriginal field from the photo EXIF data
-$photoexif = exif_read_data($_SESSION['photos'][$random],'IFD0');
-$photoDateTimeOriginal = $photoexif['DateTimeOriginal'];
+$photoExif = exif_read_data($_SESSION['photos'][$random],'IFD0');
+$photoYear = date("Y",strtotime($photoExif['DateTimeOriginal']));
 
 // Display the filename of the photo and DateTimeOriginal
-echo("<pre>" . basename($photo) . " (Original Date $photoDateTimeOriginal)" . "</pre>");
+echo("<h2>Year: $photoYear File:" . basename($photo) . "</h2>");
 
 ?>
 <img src="<?=$photo?>"/>
