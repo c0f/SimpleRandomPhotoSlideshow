@@ -14,7 +14,7 @@ $backgroundColor = 'black';
 $textColor = 'white';
 
 // Number of minutes after which the photo directory will be rescanned. The rescan is triggered by recreating the session to force a file rescan
-$recanAfter = 23;
+$recanAfter = 30;
 
 ?>
 <!DOCTYPE html>
